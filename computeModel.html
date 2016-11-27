@@ -1,0 +1,244 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>computeModel</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-28"><meta name="DC.source" content="computeModel.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Bead Judge</a></li><li><a href="#2">Preprocessing</a></li><li><a href="#5">Fitting a linear classification model using the training data X, Y</a></li><li><a href="#7">Predict whether the test images has bead or not with the fitclinear model</a></li><li><a href="#8">Obtain X_test using beadDetect and construct X_test</a></li><li><a href="#9">Data Visualization</a></li><li><a href="#11">Translate to ds format readable by dsProjPlot2</a></li></ul></div><h2>Bead Judge<a name="1"></a></h2><p>The computeModel function uses fitclinear() and training data ml_tdata to predict whether the test images contain a bead or not.</p><pre class="codeinput"><span class="keyword">function</span> ml_tdata = computeModel(ml_tdata, test)
+</pre><h2>Preprocessing<a name="2"></a></h2><p>add the MachineLearning Toolbox to path. Toolbox by Jyh-Shing Roger Jang, "Machine Learning Toolbox", available at "http://mirlab.org/jang/matlab/toolbox/machineLearning", accessed on 11/27/2016.</p><pre class="codeinput">addpath(<span class="string">'./machineLearning'</span>);
+</pre><p>construct X to be a n-by-3 matrix with n being the number of training sample each with 3 feature: radius, intensity and no. Pixels calculated from the beadDetect function.</p><pre class="codeinput">X = [ml_tdata.Particle_radius{:} ml_tdata.Particle_intensity{:} <span class="keyword">...</span>
+    ml_tdata.Particle_nPixels{:}; <span class="keyword">...</span>
+    ml_tdata.nonParticle_radius{:} ml_tdata.nonParticle_intensity{:} <span class="keyword">...</span>
+    ml_tdata.nonParticle_nPixels{:}];
+</pre><p>Construct the corresponding Y matrix n-b-1 where 0 means "no bead" and 1 means "has bead".</p><pre class="codeinput">Y_particle = ones(ml_tdata.Particle_nTraining, 1);
+Y_nonParticle = zeros(ml_tdata.nonParticle_nTraining, 1);
+Y = [Y_particle; Y_nonParticle];
+</pre><h2>Fitting a linear classification model using the training data X, Y<a name="5"></a></h2><pre class="codeinput">[Mdl,FitInfo] = fitclinear(X,Y);
+ml_tdata.model = Mdl;
+ml_tdata.learned = 1;
+
+<span class="comment">% If arg(2) is provided, proceed to predict.</span>
+<span class="keyword">if</span> nargin == 2
+</pre><pre class="codeinput">    X_test = [];
+    Y_test = [];
+</pre><h2>Predict whether the test images has bead or not with the fitclinear model<a name="7"></a></h2><p>Show the montage of input images</p><pre class="codeinput">    figure();
+    imdisp(test);
+</pre><pre class="codeoutput">Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+Warning: The DrawMode property will be removed in a future release. Use the
+SortMethod property instead. 
+</pre><img vspace="5" hspace="5" src="computeModel_01.png" style="width:792px;height:480px;" alt=""> <h2>Obtain X_test using beadDetect and construct X_test<a name="8"></a></h2><pre class="codeinput">    <span class="keyword">for</span> i = 1:size(test, 1)
+        im = test{i};
+        cir = beadDetect(im);
+        X_test = [X_test ; cir(3) cir(4) cir(5)];
+        label = predict(ml_tdata.model, X_test(i, :));
+        result_string = sprintf(<span class="string">'test case %d has'</span>, i);
+        <span class="comment">% costruct Y_test using predicted label</span>
+        <span class="keyword">if</span> label ==1
+            Y_test = [Y_test; 1];
+            result_string = strcat(result_string, <span class="string">' bead'</span>);
+        <span class="keyword">else</span>
+            Y_test = [Y_test; 0];
+            result_string = strcat(result_string, <span class="string">' no bead'</span>);
+        <span class="keyword">end</span>
+        disp(result_string);
+    <span class="keyword">end</span>
+</pre><pre class="codeoutput">test case 1 has bead
+test case 2 has bead
+test case 3 has bead
+test case 4 has bead
+test case 5 has bead
+test case 6 has no bead
+test case 7 has no bead
+test case 8 has no bead
+test case 9 has bead
+test case 10 has no bead
+</pre><h2>Data Visualization<a name="9"></a></h2><pre class="codeinput">    X_test_normalized = [X_test(:,1) X_test(:,2) X_test(:,3)./100]; <span class="comment">% normalize the intensity data to 10^2 order</span>
+
+    <span class="comment">%  Transfer into ds format for visualization</span>
+    ds = toDS(X_test_normalized', Y_test');
+    figure; dsProjPlot2(ds);
+</pre><img vspace="5" hspace="5" src="computeModel_02.png" style="width:560px;height:420px;" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><h2>Translate to ds format readable by dsProjPlot2<a name="11"></a></h2><pre class="codeinput"><span class="keyword">function</span> ds = toDS(X, Y)
+ds.dataName = <span class="string">'bead'</span>;
+ds.inputName = {<span class="string">'bead radius'</span> <span class="string">'bead intensity'</span> <span class="string">'bead nPixels'</span>};
+ds.outputName = {<span class="string">'no bead'</span> <span class="string">'has bead'</span>};
+ds.input = X;
+ds.output = Y;
+</pre><pre class="codeoutput">
+ans = 
+
+          Particle_radius: {670x1 cell}
+       Particle_intensity: {670x1 cell}
+         Particle_nPixels: {670x1 cell}
+       Particle_nTraining: 5
+       nonParticle_radius: {670x1 cell}
+    nonParticle_intensity: {670x1 cell}
+      nonParticle_nPixels: {670x1 cell}
+    nonParticle_nTraining: 7
+                  learned: 1
+                    model: [1x1 ClassificationLinear]
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Bead Judge
+% The computeModel function uses fitclinear() and training data ml_tdata to 
+% predict whether the test images contain a bead or not. 
+
+
+function ml_tdata = computeModel(ml_tdata, test)
+%% Preprocessing
+% add the MachineLearning Toolbox to path. Toolbox by 
+% Jyh-Shing Roger Jang, "Machine Learning Toolbox", available at "http://mirlab.org/jang/matlab/toolbox/machineLearning", accessed on 11/27/2016.
+addpath('./machineLearning');
+
+%%
+% construct X to be a n-by-3 matrix with n being the number of training
+% sample each with 3 feature: radius, intensity and no. Pixels calculated
+% from the beadDetect function.
+
+X = [ml_tdata.Particle_radius{:} ml_tdata.Particle_intensity{:} ... 
+    ml_tdata.Particle_nPixels{:}; ...
+    ml_tdata.nonParticle_radius{:} ml_tdata.nonParticle_intensity{:} ...
+    ml_tdata.nonParticle_nPixels{:}];
+
+%%
+% Construct the corresponding Y matrix n-b-1 where 0 means "no bead" and 1
+% means "has bead".
+Y_particle = ones(ml_tdata.Particle_nTraining, 1);
+Y_nonParticle = zeros(ml_tdata.nonParticle_nTraining, 1);
+Y = [Y_particle; Y_nonParticle];
+
+%% Fitting a linear classification model using the training data X, Y
+[Mdl,FitInfo] = fitclinear(X,Y);
+ml_tdata.model = Mdl;
+ml_tdata.learned = 1;
+
+% If arg(2) is provided, proceed to predict.
+if nargin == 2
+    X_test = [];
+    Y_test = [];
+
+%% Predict whether the test images has bead or not with the fitclinear model
+% Show the montage of input images
+    figure();
+    imdisp(test);
+    
+    %% Obtain X_test using beadDetect and construct X_test
+    for i = 1:size(test, 1)
+        im = test{i};
+        cir = beadDetect(im);
+        X_test = [X_test ; cir(3) cir(4) cir(5)];
+        label = predict(ml_tdata.model, X_test(i, :));
+        result_string = sprintf('test case %d has', i);
+        % costruct Y_test using predicted label
+        if label ==1
+            Y_test = [Y_test; 1];
+            result_string = strcat(result_string, ' bead');
+        else
+            Y_test = [Y_test; 0];
+            result_string = strcat(result_string, ' no bead');
+        end
+        disp(result_string);
+    end
+
+    %% Data Visualization  
+    X_test_normalized = [X_test(:,1) X_test(:,2) X_test(:,3)./100]; % normalize the intensity data to 10^2 order
+    
+    %  Transfer into ds format for visualization
+    ds = toDS(X_test_normalized', Y_test');
+    figure; dsProjPlot2(ds);
+end
+
+%% Translate to ds format readable by dsProjPlot2
+function ds = toDS(X, Y)
+ds.dataName = 'bead';
+ds.inputName = {'bead radius' 'bead intensity' 'bead nPixels'};
+ds.outputName = {'no bead' 'has bead'};
+ds.input = X;
+ds.output = Y;
+
+##### SOURCE END #####
+--></body></html>
